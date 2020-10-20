@@ -12,39 +12,92 @@ textarea {
 // Interpretation:
 //  = '* N' => everything on the left-hand side expands N times
 
-function Interpret(program) {
-  let result = [];
+function Tokenize(program) {
+  const result = [];
+  let inQuotes = false;
+  let string = [];
+
   for (let i = 0; i < program.length; i += 1) {
     let c = program[i];
-    if (c === '*') {
+
+    if (inQuotes) {
+      if (c === '"' || c === "'") {
+        result.push({type: 'string', value: string.join('')});
+        string = [];
+        inQuotes = false;
+      } else {
+        string.push(c);
+      }
+    } else if (c === '"' || c === "'") {
+      if (string.length > 0) {
+        result.push({type: 'string', value: string.join('')});
+        string = [];
+      }
+      inQuotes = true;
+    } else if (c === '*') {
       i += 1;
-      while (program[i] === ' ') {
+      while (i < program.length) {
+        if (program[i] !== ' ') break;
         i += 1;
       }
-      const n = parseInt(program.substring(i), 10);
-      if (!isNaN(n)) {
-        // Skip the number sinc we already found it.
-        while (program[i] >= '0' && program[i] <= '9') {
-          i += 1;
-        }
-        const tmp = result.join('');
-        console.log('result before', result, 'n is', n)
-        result = [];
-        for (let j = 0; j < n; j += 1) {
-          result.push(tmp);
-        }
-        console.log('result after', result)
+      let arg = [];
+      while (i < program.length && program[i] >= '0' && program[i] <= '9') {
+        arg.push(program[i]);
+        i += 1;
+      }
+      if (arg.length === 0) {
+        console.log('Operator * without integer arg');
+        continue;
+      }
+      const argValue = parseInt(arg.join(''), 10);
+      if (isNaN(argValue)) continue;
+      result.push({type: 'op', name: c, arg: argValue});
+    } else if (c === ' ') {
+      if (string.length > 0) {
+        result.push({type: 'string', value: string.join('')});
+        string = [];
       }
     } else {
-      result.push(c);
+      string.push(c);
+    }
+  }
+
+  if (string.length > 0) {
+    result.push({type: 'string', value: string.join('')});
+  }
+
+  return result;
+}
+
+function Interpret(tokens) {
+  let result = [];
+  for (let i = 0; i < tokens.length; i += 1) {
+    const tok = tokens[i];
+    if (tok.type === 'string') {
+      result.push(tok.value);
+    } else if (tok.type === 'op') {
+      if (tok.name === '*') {
+        const tmp = result.join(' ');
+        result = [];
+        for (let z = 0; z < tok.arg; z += 1) {
+          result.push(tmp);
+          result.push(' ');
+        }
+      }
     }
   }
   return result.join('');
 }
 
+function Tests() {
+
+}
+
+
+
 function Speak() {
   const input = document.getElementById('input').value;
-  const output = Interpret(input);
+  const output = Interpret(Tokenize(input));
   console.log('program is', output);
 
   const utterance = new SpeechSynthesisUtterance(output);
