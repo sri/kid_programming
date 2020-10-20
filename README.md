@@ -9,6 +9,10 @@ There is one operator: `*'.
 It is used like this: "hello world * 3".
 This will repeat the phrase "hello world" three times.
 
+Usage
+=====
+Enter text in the textarea and hit Enter or press the Speak key.
+
 Implementation
 ===============
 We use the Speech Synthesis API supported by most browsers.
