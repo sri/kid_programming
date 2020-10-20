@@ -70,6 +70,7 @@ function Tokenize(program) {
 }
 
 function Interpret(tokens) {
+  console.log('tokens', tokens);
   let result = [];
   for (let i = 0; i < tokens.length; i += 1) {
     const tok = tokens[i];
@@ -86,13 +87,11 @@ function Interpret(tokens) {
       }
     }
   }
-  return result.join('');
+  return result.join(' ');
 }
 
 function Tests() {
-
 }
-
 
 
 function Speak() {
@@ -107,7 +106,17 @@ function Speak() {
   speechSynthesis.speak(utterance);
 }
 
+function OnKeyPress() {
+  const { keyCode } = window.event;
+
+    if (keyCode === 13) {
+      Speak();
+      return false;
+    } else {
+      return true;
+    }
+}
+
 </script>
 <h1>Programming</h1>
-<textarea id="input" rows="20" cols="40"></textarea>
-<button type="button" onclick="Speak()">Speak!</button>
+<textarea id="input" rows="10" cols="80" onkeypress="OnKeyPress();"></textarea>
