@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<style type="text/css">
+body {
+  font-size: 14pt;
+}
+textarea {
+  font-size: 14pt;
+}
+</style>
+<script type="text/javascript">
+// Interpretation:
+//  = '* N' => everything on the left-hand side expands N times
+
+function Interpret(program) {
+  let result = [];
+  for (let i = 0; i < program.length; i += 1) {
+    let c = program[i];
+    if (c === '*') {
+      i += 1;
+      while (program[i] === ' ') {
+        i += 1;
+      }
+      const n = parseInt(program.substring(i), 10);
+      if (!isNaN(n)) {
+        // Skip the number sinc we already found it.
+        while (program[i] >= '0' && program[i] <= '9') {
+          i += 1;
+        }
+        const tmp = result.join('');
+        console.log('result before', result, 'n is', n)
+        result = [];
+        for (let j = 0; j < n; j += 1) {
+          result.push(tmp);
+        }
+        console.log('result after', result)
+      }
+    } else {
+      result.push(c);
+    }
+  }
+  return result.join('');
+}
+
+function Speak() {
+  const input = document.getElementById('input').value;
+  const output = Interpret(input);
+  console.log('program is', output);
+
+  const utterance = new SpeechSynthesisUtterance(output);
+  // var voices = window.speechSynthesis.getVoices();
+  // utterance.voice = voices[50];
+  // utterance.voiceURI = 'native';
+  speechSynthesis.speak(utterance);
+}
+
+</script>
+<h1>Programming</h1>
+<textarea id="input" rows="20" cols="40"></textarea>
+<button type="button" onclick="Speak()">Speak!</button>
